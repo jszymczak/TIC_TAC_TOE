@@ -2,6 +2,8 @@ package tictactoe;
 
 public class Main {
     public static void main(String[] args) {
-        // write your code here
+        System.out.println("X\tO\tX");
+        System.out.println("O\tX\tO");
+        System.out.println("X\tX\tO");
     }
 }
