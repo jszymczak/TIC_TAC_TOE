@@ -8,6 +8,7 @@ public class Main {
         String allSymbols = scanner.nextLine();
         String[] allSymbolsInArray = new String[9];
         String[][] myMatrix = new String[3][3];
+        boolean threeInARow = false;
         boolean threeOInARow = false;
         boolean threeXInARow = false;
         boolean isEmptySpace = false;
@@ -62,14 +63,14 @@ public class Main {
         }
     }
 
-    private static boolean isThreeSignInARow(String[][] myMatrix, boolean threeOInARow, int i, String sign) {
+    private static boolean isThreeSignInARow(String[][] myMatrix, boolean threeInARow, int i, String sign) {
         if (myMatrix[i][0].equals(myMatrix[i][1]) && myMatrix[i][1].equals(myMatrix[i][2]) && sign.equals(myMatrix[i][0]) ||
                 myMatrix[0][i].equals(myMatrix[1][i]) && myMatrix[1][i].equals(myMatrix[2][i]) && sign.equals(myMatrix[2][i]) ||
                 myMatrix[0][0].equals(myMatrix[1][1]) && myMatrix[1][1].equals(myMatrix[2][2]) && sign.equals(myMatrix[0][0]) ||
                 myMatrix[2][0].equals(myMatrix[1][1]) && myMatrix[1][1].equals(myMatrix[0][2]) && sign.equals(myMatrix[2][0])) {
-            threeOInARow = true;
+            threeInARow = true;
         }
-        return threeOInARow;
+        return threeInARow;
     }
 
     private static void printMatrix(String[][] myMatrix) {
