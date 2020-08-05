@@ -8,7 +8,7 @@ public class Main {
     boolean threeInARow = false;
     public static final String X_SIGN = "X";
     public static final String O_SIGN = "O";
-    public static final String SPACE = " ";
+    public static final String SPACE = "_";
     public static boolean fieldIsFilled = false;
     public static boolean valueIsApplied = false;
     public static int nextX = 0;
@@ -17,8 +17,8 @@ public class Main {
 
 
     public static void main(String[] args) {
-//        Scanner scanner = new Scanner(System.in);
-        String allSymbols = "         ";
+        Scanner scanner = new Scanner(System.in);
+        String allSymbols = scanner.nextLine();
         String[] allSymbolsInArray = new String[9];
         String[][] myMatrix = new String[3][3];
         boolean threeOInARow = false;
