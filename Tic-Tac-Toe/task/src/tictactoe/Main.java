@@ -5,24 +5,25 @@ import java.util.Scanner;
 import java.util.stream.IntStream;
 
 public class Main {
-    boolean threeInARow = false;
     public static final String X_SIGN = "X";
     public static final String O_SIGN = "O";
     public static final String SPACE = " ";
-    public static boolean fieldIsFilled = false;
-    public static boolean valueIsApplied = false;
     public static int nextX = 0;
     public static int nextY = 0;
+    public static int status = 0;
     public static final int[] validNumbers = {1, 2, 3};
 
-
     public static void main(String[] args) {
-//        Scanner scanner = new Scanner(System.in);
         String allSymbols = "         ";
         String[] allSymbolsInArray = new String[9];
         String[][] myMatrix = new String[3][3];
         boolean threeOInARow = false;
         boolean threeXInARow = false;
+        boolean isEmptySpace = false;
+        boolean threeInARow = false;
+        boolean existsWinnerO = false;
+        boolean existsWinnerX = false;
+        int chooseXorO = 1;
         int k = 0;
         int countX = 0;
         int countO = 0;
@@ -40,36 +41,68 @@ public class Main {
 
         printMatrix(myMatrix);
 
-        checkThreeInARow(myMatrix, threeOInARow, threeXInARow);
+        do {
+            switch (chooseXorO) {
+                case 1:
+                    addNextSign(myMatrix, X_SIGN);
+                    break;
+                case -1:
+                    addNextSign(myMatrix, O_SIGN);
+                    break;
+            }
+            existsWinnerO = checkThreeOInARow(myMatrix, threeOInARow);
+            existsWinnerX = checkThreeXInARow(myMatrix, threeXInARow);
 
-        checkStateOfMatrix(myMatrix, countX, countO);
+            printMatrix(myMatrix);
 
-//        if ((threeOInARow && threeXInARow) || Math.abs(countX - countO) >= 2) {
-//            System.out.println("Impossible");
-//        } else if (threeOInARow) {
-//            System.out.println("O wins");
-//        } else if (threeXInARow) {
-//            System.out.println("X wins");
-//        } else if (isEmptySpace) {
-//            System.out.println("Game not finished");
-//        } else {
-//            System.out.println("Draw");
-//        }
-
-        addNextSign(myMatrix);
-
-        printMatrix(myMatrix);
-
+            boolean gameNotFinished = checkStateOfMatrix(myMatrix);
+            if (existsWinnerO && existsWinnerX) {
+                System.out.println("Impossible");
+            } else if (existsWinnerO) {
+                System.out.println("O wins");
+                status = 5;
+            } else if (existsWinnerX) {
+                System.out.println("X wins");
+                status = 5;
+            } else if (gameNotFinished) {
+                status = 10;
+            } else {
+                System.out.println("Draw");
+                status = 5;
+            }
+            chooseXorO *= -1;
+        } while (status != 5);
     }
 
-    private static void checkThreeInARow(String[][] myMatrix, boolean threeOInARow, boolean threeXInARow) {
+    private static boolean checkThreeXInARow(String[][] myMatrix, boolean threeXInARow) {
         for (int i = 0; i < 3; i++) {
-            threeOInARow = isThreeSignInARow(myMatrix, threeOInARow, i, O_SIGN);
             threeXInARow = isThreeSignInARow(myMatrix, threeXInARow, i, X_SIGN);
         }
+        return threeXInARow;
     }
 
-    private static void checkStateOfMatrix(String[][] myMatrix, int countX, int countO) {
+    private static boolean checkThreeOInARow(String[][] myMatrix, boolean threeOInARow) {
+        for (int i = 0; i < 3; i++) {
+            threeOInARow = isThreeSignInARow(myMatrix, threeOInARow, i, O_SIGN);
+        }
+        return threeOInARow;
+    }
+
+    private static boolean isThreeSignInARow(String[][] myMatrix, boolean threeInARow, int i, String sign) {
+        if (myMatrix[i][0].equals(myMatrix[i][1]) && myMatrix[i][1].equals(myMatrix[i][2]) && sign.equals(myMatrix[i][0]) ||
+                myMatrix[0][i].equals(myMatrix[1][i]) && myMatrix[1][i].equals(myMatrix[2][i]) && sign.equals(myMatrix[2][i]) ||
+                myMatrix[0][0].equals(myMatrix[1][1]) && myMatrix[1][1].equals(myMatrix[2][2]) && sign.equals(myMatrix[0][0]) ||
+                myMatrix[2][0].equals(myMatrix[1][1]) && myMatrix[1][1].equals(myMatrix[0][2]) && sign.equals(myMatrix[2][0])) {
+            threeInARow = true;
+        }
+        return threeInARow;
+    }
+
+    private static boolean checkStateOfMatrix(String[][] myMatrix) {
+        int countX = 0;
+        int countO = 0;
+        boolean isCorrectNumberOfSigns;
+        boolean processTheGame;
         boolean isEmptySpace = false;
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
@@ -84,24 +117,30 @@ public class Main {
                 }
             }
         }
+        isCorrectNumberOfSigns = Math.abs(countX - countO) <= 2;
+        processTheGame = isCorrectNumberOfSigns && isEmptySpace;
+        return processTheGame;
     }
 
-    private static void addNextSign(String[][] myMatrix) {
+    private static void addNextSign(String[][] myMatrix, String sign) {
         boolean exceptionOccurred = false;
+        boolean valueHasChanged = false;
+        boolean fieldIsCorrectlyFilled = false;
         do {
             try {
-                validateCoordinates();
-                if (fieldIsFilled) {
-                    changeValueInField(myMatrix, nextX - 1, nextY - 1);
+                fieldIsCorrectlyFilled = validateCoordinates();
+                if (fieldIsCorrectlyFilled) {
+                    valueHasChanged = changeValueInField(myMatrix, nextX - 1, nextY - 1, sign);
                 }
                 exceptionOccurred = false;
             } catch (InputMismatchException e) {
                 System.out.println("You should enter numbers!");
             }
-        } while (!fieldIsFilled || exceptionOccurred || !valueIsApplied);
+        } while (exceptionOccurred || !valueHasChanged);
     }
 
-    public static void validateCoordinates() {
+    public static boolean validateCoordinates() {
+        boolean fieldIsFilled = false;
         Scanner coordinates = new Scanner(System.in);
         System.out.print("Enter the coordinates: ");
         nextX = coordinates.nextInt();
@@ -109,26 +148,12 @@ public class Main {
         boolean xIsValid = IntStream.of(validNumbers).anyMatch(x -> x == nextX);
         boolean yIsValid = IntStream.of(validNumbers).anyMatch(y -> y == nextY);
         if (xIsValid && yIsValid) {
-            if (nextY == 3) {
-                nextY = 1;
-            } else if (nextY == 1) {
-                nextY = 3;
-            }
+            nextY = nextY == 3 ? 1 : nextY == 1 ? 3 : nextY;
             fieldIsFilled = true;
         } else {
             System.out.println("Coordinates should be from 1 to 3!");
-            fieldIsFilled = false;
         }
-    }
-
-    private static boolean isThreeSignInARow(String[][] myMatrix, boolean threeInARow, int i, String sign) {
-        if (myMatrix[i][0].equals(myMatrix[i][1]) && myMatrix[i][1].equals(myMatrix[i][2]) && sign.equals(myMatrix[i][0]) ||
-                myMatrix[0][i].equals(myMatrix[1][i]) && myMatrix[1][i].equals(myMatrix[2][i]) && sign.equals(myMatrix[2][i]) ||
-                myMatrix[0][0].equals(myMatrix[1][1]) && myMatrix[1][1].equals(myMatrix[2][2]) && sign.equals(myMatrix[0][0]) ||
-                myMatrix[2][0].equals(myMatrix[1][1]) && myMatrix[1][1].equals(myMatrix[0][2]) && sign.equals(myMatrix[2][0])) {
-            threeInARow = true;
-        }
-        return threeInARow;
+        return fieldIsFilled;
     }
 
     private static void printMatrix(String[][] myMatrix) {
@@ -148,12 +173,14 @@ public class Main {
         System.out.println("---------");
     }
 
-    private static void changeValueInField(String[][] myMatrix, int valueX, int valueY) {
+    private static boolean changeValueInField(String[][] myMatrix, int valueX, int valueY, String signValue) {
+        boolean valueIsApplied = false;
         if (!myMatrix[valueY][valueX].equals(SPACE)) {
             System.out.println("This cell is occupied! Choose another one!");
         } else {
-            myMatrix[valueY][valueX] = X_SIGN;
+            myMatrix[valueY][valueX] = signValue;
             valueIsApplied = true;
         }
+        return valueIsApplied;
     }
 }
