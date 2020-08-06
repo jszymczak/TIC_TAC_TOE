@@ -65,7 +65,6 @@ public class Main {
                 System.out.println("X wins");
                 status = 5;
             } else if (gameNotFinished) {
-//                System.out.println("Game not finished");
                 status = 10;
             } else {
                 System.out.println("Draw");
